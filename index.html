@@ -17,17 +17,21 @@
 </head>
 <body>
 <canvas id="myCanvas" width="480" height="320"></canvas>
+<div id="speedIndicator">Speed => 2</div>
 <script>
     // canvas
     const canvas = document.getElementById("myCanvas");
     const ctx = canvas.getContext("2d");
+
+    // speed indicator
+    const speedIndicator = document.getElementById("speedIndicator");
 
     // start point
     let x = canvas.width / 2;
     let y = canvas.height - 30;
 
     // moving
-    const speed = 2;
+    let speed = 2;
     let dx = speed;
     let dy = -speed;
 
@@ -36,7 +40,7 @@
 
     // paddle
     const paddleHeight = 10;
-    const paddleWidth = 75;
+    let paddleWidth = 75;
     let paddleX = (canvas.width - paddleWidth) / 2; // start position
     let paddleSpeed = 7;
 
@@ -61,6 +65,7 @@
     }
 
     function draw() {
+        speedIndicator.innerHTML = "Speed => " + speed;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawBall();
         drawPaddle();
@@ -71,8 +76,20 @@
         if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
             dx = -dx;
         }
-        if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
+
+        if (y + dy < ballRadius) { // hit the ceiling
             dy = -dy;
+        } else if (y + dy > canvas.height - ballRadius) {
+            if (x > paddleX && x < paddleX + paddleWidth) {
+                // TODO emit a bouncing sound
+                // TODO temporarily increase speed
+                dy = -dy;
+            } else {
+                // TODO emit a loser sound
+                alert("GAME OVER");
+                document.location.reload();
+                clearInterval(interval);
+            }
         }
 
         if (rightPressed) {
@@ -107,7 +124,7 @@
         }
     }
 
-    setInterval(draw, 10);
+    let interval = setInterval(draw, 10);
 
 </script>
 </body>
