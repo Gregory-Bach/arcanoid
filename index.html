@@ -65,6 +65,9 @@
     let rightPressed = false;
     let leftPressed = false;
 
+    // score
+    let score = 0;
+
     function drawBricks() {
         for (var c = 0; c < brickColumnCount; c++) {
             for (var r = 0; r < brickRowCount; r++) {
@@ -106,6 +109,7 @@
         drawBricks();
         drawPaddle();
         collisionDetection();
+        drawScore();
 
         x += dx;
         y += dy;
@@ -174,10 +178,22 @@
                     ) {
                         dy = -dy; // ball bounces on brick
                         b.status = 0;
+                        score++;
+                        if (score === brickRowCount * brickColumnCount) {
+                            alert("Winner!");
+                            document.location.reload();
+                            clearInterval(interval); // Needed for Chrome to end game
+                        }
                     }
                 }
             }
         }
+    }
+
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#dd004d";
+        ctx.fillText("Score: " + score, 8, 20);
     }
 
     let interval = setInterval(draw, 10);
