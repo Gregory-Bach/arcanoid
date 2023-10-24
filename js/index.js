@@ -15,8 +15,12 @@ const bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
     bricks[c] = [];
     for (let r = 0; r < brickRowCount; r++) {
-        bricks[c][r] = {x: 0, y: 0, status: 1};
+        bricks[c][r] = {x: 0, y: 0, status: randomBrickStatus()};
     }
+}
+
+function randomBrickStatus() {
+    return Math.floor(Math.random() * 3) + 1;
 }
 
 // speed indicator
@@ -51,18 +55,31 @@ let lives = 3;
 function drawBricks() {
     for (var c = 0; c < brickColumnCount; c++) {
         for (var r = 0; r < brickRowCount; r++) {
-            if (bricks[c][r].status == 1) {
+            if (bricks[c][r].status > 0) {
                 var brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
                 var brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
                 ctx.beginPath();
                 ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStyle = "#00dd60";
+                ctx.fillStyle = brickColorFromStatus(bricks[c][r].status);
                 ctx.fill();
                 ctx.closePath();
             }
         }
+    }
+}
+
+function brickColorFromStatus(status) {
+    switch (status) {
+        case 1:
+            return "#f8795b";
+        case 2:
+            return "#02b6e0";
+        case 3:
+            return "rgba(0,176,125,0.75)";
+        default:
+            return "#000000";
     }
 }
 
@@ -169,10 +186,10 @@ function mouseMoveHandler(e) {
 
 // collision detection
 function collisionDetection() {
-    for (var c = 0; c < brickColumnCount; c++) {
-        for (var r = 0; r < brickRowCount; r++) {
-            var b = bricks[c][r];
-            if (b.status === 1) {
+    for (let c = 0; c < brickColumnCount; c++) {
+        for (let r = 0; r < brickRowCount; r++) {
+            let b = bricks[c][r];
+            if (b.status > 0) {
                 if (
                     x > b.x &&
                     x < b.x + brickWidth &&
@@ -180,8 +197,8 @@ function collisionDetection() {
                     y < b.y + brickHeight
                 ) {
                     dy = -dy; // ball bounces on brick
-                    b.status = 0;
-                    score++;
+                    b.status -= 1;
+                    score = b.status === 0 ? score + 1 : score;
                     if (score === brickRowCount * brickColumnCount) {
                         alert("Winner!");
                         document.location.reload();
